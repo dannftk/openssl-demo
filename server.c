@@ -117,9 +117,12 @@ void server()
             ERR_print_errors_fp(stderr);
         }
         else {
+            int buffSize = 100;
+            char buff[buffSize] ;
+            SSL_read(ssl, buff, buffSize);
+            printf("%s\n",buff);
 
             SSL_write(ssl, reply, strlen(reply));
-
         }
 
         SSL_shutdown(ssl);
@@ -138,6 +141,3 @@ int main(int argc, char **argv)
     server();
 
 }
-
-
-

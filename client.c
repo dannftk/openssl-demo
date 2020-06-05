@@ -53,11 +53,16 @@ int verify_callback(int preverify, X509_STORE_CTX* x509_ctx)
     printf("error:%d\n", reason);
  }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-     setvbuf (stdout, NULL, _IONBF, 0);
+    if(argc < 2) {
+        printf("Missing message. Usage:\n%s 'message for TLS transmission'\n", argv[0]);
+        return 1;
+    }
+
+    setvbuf (stdout, NULL, _IONBF, 0);
 		#define HOST_NAME "localhost"
-        #define HOST_PORT "4433"
+    #define HOST_PORT "4433"
 
         long res = 1;
 
@@ -124,7 +129,7 @@ int main(void)
         /* Step 3: hostname verification */
         /* An exercise left to the reader */
 
-        BIO_puts(web, "hallo");
+        BIO_puts(web, argv[1]);
         BIO_puts(out, "\n");
 
         int len = 0;
@@ -150,4 +155,3 @@ int main(void)
 
     return 0;
 }
-
