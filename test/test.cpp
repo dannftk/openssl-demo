@@ -6,6 +6,13 @@
 #include <string_view>
 #include <mutex>
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+#if (SSLEAY_VERSION_NUMBER >= 0x0907000L)
+# include <openssl/conf.h>
+#endif
+
 #include "client.h"
 #include "server.h"
 #include "color.hpp"
@@ -81,10 +88,30 @@ void srv_msg_handler(char const *ans, char const *exp_ans)
 void srv_msg_check_ok_handler(char const *ans) { srv_msg_handler(ans, "ok"); }
 void srv_msg_check_not_ok_handler(char const *ans) { srv_msg_handler(ans, "not ok"); }
 
+void init_openssl()
+{
+    SSL_library_init();
+    SSL_load_error_strings();
+    /* ERR_load_crypto_strings(); */
+    OPENSSL_config(NULL);
+    OpenSSL_add_ssl_algorithms();
+    /* Include <openssl/opensslconf.h> to get this define */
+    #if defined (OPENSSL_THREADS)
+        printf("Warning: thread locking is not implemented\n");
+    #endif
+}
+
+void cleanup_openssl()
+{
+    EVP_cleanup();
+}
+
 } // anonymous namespace
 
 int main(int argc, char *argv[])
 {
+    init_openssl();
+
     TEST(ServerRepliesWithSuccess, {
         reset_cl_msg_handler(test_1_cl_msg_handler);
         auto s = std::async(std::launch::async, []{ return server(kCertPath.data(), kKeyPath.data(), kPort, cl_msg_handler); });
@@ -105,5 +132,7 @@ int main(int argc, char *argv[])
         EXPECT_TRUE(!s.get(), "Server returned failed code");
     });
 
-    return run_test_cases();
+    int const r = run_test_cases();
+    cleanup_openssl();
+    return r;
 }

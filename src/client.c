@@ -13,26 +13,6 @@
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#if (SSLEAY_VERSION_NUMBER >= 0x0907000L)
-# include <openssl/conf.h>
-#endif
-
-static void init_openssl_library(void)
-{
-    (void)SSL_library_init();
-
-    SSL_load_error_strings();
-
-    /* ERR_load_crypto_strings(); */
-
-    OPENSSL_config(NULL);
-
-    /* Include <openssl/opensslconf.h> to get this define */
-#if defined (OPENSSL_THREADS)
-    printf("Warning: thread locking is not implemented\n");
-#endif
-}
-
 static int verify_callback(int preverify, X509_STORE_CTX* x509_ctx)
 {
     int depth = X509_STORE_CTX_get_error_depth(x509_ctx);
@@ -73,8 +53,6 @@ int client(char const *cert_path, char const *host, uint16_t port, char const *m
     SSL_CTX* ctx = NULL;
     BIO *web = NULL, *out = NULL;
     SSL *ssl = NULL;
-
-    init_openssl_library();
 
     const SSL_METHOD* method = SSLv23_client_method();
     if (!(NULL != method)) handleFailure(1);

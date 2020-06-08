@@ -38,17 +38,6 @@ static int create_socket(uint16_t port)
     return s;
 }
 
-static void init_openssl()
-{
-    SSL_load_error_strings();
-    OpenSSL_add_ssl_algorithms();
-}
-
-static void cleanup_openssl()
-{
-    EVP_cleanup();
-}
-
 static SSL_CTX *create_context()
 {
     const SSL_METHOD *method;
@@ -91,10 +80,7 @@ int server(char const *cert_path, char const *key_path, uint16_t port, cl_msg_ha
     int r = 0;
 
     int sock;
-    SSL_CTX *ctx;
-
-    init_openssl();
-    ctx = create_context();
+    SSL_CTX *ctx = create_context();
 
     configure_context(ctx, cert_path, key_path);
 
@@ -149,7 +135,6 @@ int server(char const *cert_path, char const *key_path, uint16_t port, cl_msg_ha
 error:
     close(sock);
     SSL_CTX_free(ctx);
-    cleanup_openssl();
 
     return r;
 }
