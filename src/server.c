@@ -93,8 +93,6 @@ int server(char const *cert_path, char const *key_path, uint16_t port, cl_msg_ha
     int sock;
     SSL_CTX *ctx;
 
-    setvbuf(stdout, NULL, _IONBF, 0);
-
     init_openssl();
     ctx = create_context();
 
