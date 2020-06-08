@@ -98,7 +98,7 @@ int client(char const *cert_path, char const *host, uint16_t port, char const *m
     web = BIO_new_ssl_connect(ctx);
     if (!(web != NULL)) handleFailure(4);
 
-    size_t const hostname_size = strlen(host) + static_cast<int>(log10(port)) + 3;
+    size_t const hostname_size = strlen(host) + (int)(log10(port)) + 3;
     char *hostname = malloc(hostname_size);
     sprintf(hostname, "%s:%" PRIu16, host, port);
     hostname[hostname_size - 1] = '\0';
