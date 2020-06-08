@@ -87,9 +87,9 @@ int main(int argc, char *argv[])
 {
     TEST(ServerRepliesWithSuccess, {
         reset_cl_msg_handler(test_1_cl_msg_handler);
-        auto s = std::async([]{ return server(kCertPath.data(), kKeyPath.data(), kPort, cl_msg_handler); });
-        auto c = std::async([]{ return run_client("Hello, world", srv_msg_check_ok_handler); });
-        EXPECT_TRUE(!c.get(), "Client returned failed code");
+        auto s = std::async(std::launch::async, []{ return server(kCertPath.data(), kKeyPath.data(), kPort, cl_msg_handler); });
+        auto const c = run_client("Hello, world", srv_msg_check_ok_handler);
+        EXPECT_TRUE(!c, "Client returned failed code");
         reset_cl_msg_handler();
         EXPECT_TRUE(!client(kCertPath.data(), "localhost", kPort, kStopMsg.data(), NULL), "Client returned non-zero code");
         EXPECT_TRUE(!s.get(), "Server returned failed code");
@@ -97,9 +97,9 @@ int main(int argc, char *argv[])
 
     TEST(ServerRepliesWithFailure, {
         reset_cl_msg_handler(test_2_cl_msg_handler);
-        auto s = std::async([]{ return server(kCertPath.data(), kKeyPath.data(), kPort, cl_msg_handler); });
-        auto c = std::async([]{ return run_client("Hello, world", srv_msg_check_not_ok_handler); });
-        EXPECT_TRUE(!c.get(), "Client returned failed code");
+        auto s = std::async(std::launch::async, []{ return server(kCertPath.data(), kKeyPath.data(), kPort, cl_msg_handler); });
+        auto const c = run_client("Hello, world", srv_msg_check_not_ok_handler);
+        EXPECT_TRUE(!c, "Client returned failed code");
         reset_cl_msg_handler();
         EXPECT_TRUE(!client(kCertPath.data(), "localhost", kPort, kStopMsg.data(), NULL), "Client returned non-zero code");
         EXPECT_TRUE(!s.get(), "Server returned failed code");
